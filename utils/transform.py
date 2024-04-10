@@ -26,7 +26,7 @@ class CIFAR10Dataset(datasets.CIFAR10):
         if transform == "train":
             self.transform = A.Compose(
                 [
-                    A.PadIfNeeded(min_height=40, min_width=40,border_mode=cv2.BORDER_CONSTANT, always_apply=True),
+                    A.PadIfNeeded(min_height=40, min_width=40,border_mode=0, always_apply=True),
                     A.RandomCrop(32, 32, always_apply=True),
                     A.CoarseDropout(
                         max_holes=1,
