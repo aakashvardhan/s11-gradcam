@@ -17,6 +17,7 @@ def set_seeds(seed: int = 42):
     torch.backends.cudnn.benchmark = False
     os.environ["PYTHONHASHSEED"] = str(seed)
 
+
 def setup_cifar10(config):
     """
     Sets up the CIFAR-10 dataset and data loaders.
@@ -59,7 +60,6 @@ def setup_cifar10(config):
     test_loader = torch.utils.data.DataLoader(test_data, **dataloader_args)
 
     return train_data, test_data, train_loader, test_loader
-
 
 
 def main(config, model, trainer):
