@@ -101,7 +101,8 @@ class ModelTrainer:
         test_loss /= len(self.test_loader.dataset)
         self.test_losses.append(test_loss)
         print(
-            f"\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(self.test_loader.dataset)} ({100.0 * correct / len(self.test_loader.dataset):.2f}%)\n"
+            f"\nTest set: Average loss: {test_loss:.4f}, 
+            Accuracy: {correct}/{len(self.test_loader.dataset)} ({100.0 * correct / len(self.test_loader.dataset):.2f}%)\n"
         )
         self.test_acc.append(100.0 * correct / len(self.test_loader.dataset))
         return test_loss
