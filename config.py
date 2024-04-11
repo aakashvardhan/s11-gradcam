@@ -18,6 +18,7 @@ def get_config():
         "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         "batch_size": 128,
         "epochs": 20,
+        "max_lr": 0.1,
         "lr": 0.01,
         "lr_scheduler": "step_lr",
         "dropout": 0.1,
