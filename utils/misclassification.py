@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from torchvision import datasets
 import torch
-import torch.nn.functional as F
 
 
 def show_misclassified_images(model, test_loader, config):
