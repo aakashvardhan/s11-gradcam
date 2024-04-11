@@ -1,6 +1,6 @@
 import torch
-from tqdm import tqdm
 import torch.nn.functional as F
+from tqdm import tqdm
 
 
 class ModelTrainer:
