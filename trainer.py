@@ -96,7 +96,7 @@ class ModelTrainer:
             for data, target in self.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
-                test_loss += F.nll_loss(output, target, reduction="sum").item()
+                test_loss += self.criterion(output, target, reduction="sum").item()
                 pred = output.argmax(dim=1, keepdim=True)
                 correct += pred.eq(target.view_as(pred)).sum().item()
         test_loss /= len(self.test_loader.dataset)
