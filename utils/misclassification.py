@@ -1,40 +1,46 @@
+"""
+Module for displaying misclassified images.
+"""
+
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torchvision import transforms
-import math
+
 
 def show_misclassified_images(model, test_loader, config):
-    """
-    Displays the misclassified images along with their corresponding targets and predictions.
+  """
+  Displays the misclassified images along with their corresponding targets and predictions.
 
-    Args:
-      model (torch.nn.Module): The trained model.
-      test_loader (torch.utils.data.DataLoader): The data loader for the test dataset.
-      config (dict): A dictionary containing configuration parameters.
+  Args:
+    model (torch.nn.Module): The trained model.
+    test_loader (torch.utils.data.DataLoader): The data loader for the test dataset.
+    config (dict): A dictionary containing configuration parameters.
 
-    Returns:
-      misclass_imgs (list): A list of misclassified images.
-      misclass_targets (list): A list of misclassified targets.
-      misclass_preds (list): A list of misclassified predictions.
-    """
-    model.eval()
-    misclass_data = []
-    with torch.no_grad():
-        for images, labels in test_loader:
-            images, labels = images.to(config["device"]), labels.to(config["device"])
+  Returns:
+    misclass_imgs (list): A list of misclassified images.
+    misclass_targets (list): A list of misclassified targets.
+    misclass_preds (list): A list of misclassified predictions.
+  """
+  model.eval()
+  misclass_data = []
+  with torch.no_grad():
+    for images, labels in test_loader:
+      images, labels = images.to(config["device"]), labels.to(config["device"])
 
-            for image, label in zip(images, labels):
-                image = image.unsqueeze(0)
-                outputs = model(image)
-                pred = outputs.argmax(
-                    dim=1, keepdim=True
-                )  # get the index of the max log probability
+      for image, label in zip(images, labels):
+        image = image.unsqueeze(0)
+        outputs = model(image)
+        pred = outputs.argmax(
+          dim=1, keepdim=True
+        )  # get the index of the max log probability
 
-                if pred.item() != label.item():
-                    misclass_data.append((image, label, pred))
+        if pred.item() != label.item():
+          misclass_data.append((image, label, pred))
 
-    return misclass_data
+  return misclass_data
 
 
 def plt_misclassified_images(config, misclass_data, no_samples=10):
