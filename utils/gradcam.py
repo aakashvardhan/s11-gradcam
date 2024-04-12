@@ -38,7 +38,7 @@ def display_gradcam_output(
         y_count = math.floor(no_samples / x_count)
 
     # Create an object for GradCAM
-    cam = GradCAM(model=model, target_layers=target_layers, use_cuda=True)
+    cam = GradCAM(model=model, target_layers=target_layers)
 
     # Iterate over number of specified images
     for i in range(no_samples):
