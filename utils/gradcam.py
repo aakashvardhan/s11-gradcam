@@ -44,7 +44,7 @@ def display_gradcam_output(
     for i in range(no_samples):
         plt.subplot(y_count, x_count, i + 1)
         input_tensor = misclass_data[i][0]
-        input_tensor = input_tensor.unsqueeze(0)
+        input_tensor = input_tensor.unsqueeze(1)
 
         # Get the activations of the layer for the images
         grayscale_cam = cam(input_tensor=input_tensor, targets=None)
