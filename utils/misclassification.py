@@ -21,18 +21,20 @@ def show_misclassified_images(model, test_loader, config):
     misclass_imgs, misclass_targets, misclass_preds = [], [], []
     with torch.no_grad():
         for images, labels in test_loader:
-            images, labels = images.to(config["device"]), labels.to(config["device"])
-            images = images.unsqueeze(0)
-            outputs = model(images)
-            pred = outputs.argmax(
+          images, labels = images.to(config["device"]), labels.to(config["device"])
+          
+          for image, label in zip(images, labels):
+              image = image.unsqueeze(0)
+              outputs = model(image)
+              pred = outputs.argmax(
                 dim=1, keepdim=True
-            )  # get the index of the max log probability
-            misclassified_mask = ~(pred == labels.view_as(pred)).cpu().numpy()
-            # squeeze
-            misclassified_mask = misclassified_mask.squeeze()
-            misclass_imgs.extend(images[misclassified_mask])
-            misclass_targets.extend(labels.view_as(pred)[misclassified_mask])
-            misclass_preds.extend(pred[misclassified_mask])
+              )  # get the index of the max log probability
+              misclassified_mask = ~(pred == label.view_as(pred)).cpu().numpy()
+              # squeeze
+              # misclassified_mask = misclassified_mask.squeeze()
+              misclass_imgs.extend(image[misclassified_mask])
+              misclass_targets.extend(label.view_as(pred)[misclassified_mask])
+              misclass_preds.extend(pred[misclassified_mask])
 
     return misclass_imgs, misclass_targets, misclass_preds
 
