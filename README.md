@@ -168,5 +168,8 @@ Test set: Average loss: 0.2640, Accuracy: 9214/10000 (92.14%)
 
 ![Plot](https://github.com/aakashvardhan/s11-gradcam/blob/main/asset/model-performance.png)
 
+### Observations
+The "Training Loss" graph shows a significant decrease in loss over numerous iterations, indicating that the model is effectively learning from the training data. The "Test Loss" graph reveals an initial sharp decline followed by a plateau, suggesting good generalization to unseen data. The "Training Accuracy" graph demonstrates a steady increase, while the "Test Accuracy" graph also shows improvement, both of which indicate that the model's predictions are becoming more accurate as training progresses. 
+
 ## Conclusion
 The ResNet18 model on CIFAR10 achieves an accuracy of 92.14% after 20 epochs. The Grad-CAM visualizations show the regions of the image that are important for classification. The earlier layers focus on the edges and textures of the object or background, while the deeper layers focus on the more abstract features of the object. This indicates that the ResNet18 model is learning high-level features.
