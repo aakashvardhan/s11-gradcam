@@ -62,8 +62,9 @@ def display_gradcam_output(
         # Plot the GradCAM output along with the original image
         plt.imshow(visualization)
         plt.title(
-            f"Pred: {classes[misclass_data[i][2].item()]} Act: {classes[misclass_data[i][1].item()]}"
+            f"Prediction: {classes[misclass_data[i][2].item()]}\n Actual: {classes[misclass_data[i][1].item()]}"
         )
+        plt.axis("off")
         plt.xticks([])
         plt.yticks([])
     plt.tight_layout()
