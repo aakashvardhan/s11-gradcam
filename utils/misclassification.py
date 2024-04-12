@@ -67,6 +67,7 @@ def plt_misclassified_images(config, misclass_data, max_images=10):
         ax = fig.add_subplot(2, 5, i + 1, xticks=[], yticks=[])
         # Normalize the image
         im_ = normalize(misclass_imgs)
+        im_ = im_.cpu().numpy()
         pred = misclass_preds.item()
         label = misclass_targets.item()
 
