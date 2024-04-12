@@ -54,6 +54,7 @@ def plt_misclassified_images(config, misclass_data, max_images=10):
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
         image = normalize(image)
+        image = image.squeeze(0) 
         image = image.permute(1, 2, 0)
         return image
 
