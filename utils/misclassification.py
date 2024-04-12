@@ -55,7 +55,7 @@ def plt_misclassified_images(
     classes = config["classes"]
     fig = plt.figure(figsize=(20, 4))
     for i in range(n_images):
-        _, misclass_imgs, misclass_targets, misclass_preds = misclass_data[i-1]
+        misclass_imgs, misclass_targets, misclass_preds = misclass_data[i-1]
         ax = fig.add_subplot(2, 5, i + 1, xticks=[], yticks=[])
         im = misclass_imgs[i].cpu().numpy().transpose((1, 2, 0))
         label = misclass_targets[i].cpu().numpy().item()
