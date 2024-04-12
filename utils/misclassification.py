@@ -22,6 +22,7 @@ def show_misclassified_images(model, test_loader, config):
     with torch.no_grad():
         for images, labels in test_loader:
             images, labels = images.to(config["device"]), labels.to(config["device"])
+            images = images.unsqueeze(0)
             outputs = model(images)
             pred = outputs.argmax(
                 dim=1, keepdim=True
