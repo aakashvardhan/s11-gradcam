@@ -49,12 +49,13 @@ def plt_misclassified_images(config, misclass_data, max_images=10):
       max_images (int, optional): The maximum number of images to plot. Defaults to 10.
     """
 
-    def normalize(image):
-        normalize = transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+    def inv_normalize(image):
+        inv_normalize = transforms.Normalize(
+            mean=[-0.50 / 0.23, -0.50 / 0.23, -0.50 / 0.23],
+            std=[1 / 0.23, 1 / 0.23, 1 / 0.23],
         )
-        image = normalize(image)
-        image = image.squeeze(0) 
+        image = inv_normalize(image)
+        image = image.squeeze(0)
         image = image.permute(1, 2, 0)
         return image
 
@@ -66,7 +67,7 @@ def plt_misclassified_images(config, misclass_data, max_images=10):
         misclass_imgs, misclass_targets, misclass_preds = misclass_data[i - 1]
         ax = fig.add_subplot(2, 5, i + 1, xticks=[], yticks=[])
         # Normalize the image
-        im_ = normalize(misclass_imgs)
+        im_ = inv_normalize(misclass_imgs)
         im_ = im_.cpu().numpy()
         pred = misclass_preds.item()
         label = misclass_targets.item()
