@@ -1,11 +1,10 @@
 import math
 from matplotlib import pyplot as plt
 import numpy as np
-
 def display_gradcam_output(misclass_data,
                            classes,
                            model,
-                           inv_normalize: A.Normalize,
+                           inv_normalize,
                            target_layers: list['model_layer'],
                            targets=None,
                            no_samples:int = 10,

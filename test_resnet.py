@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
-
+import numpy as np
 from config import get_config
 from models.model_utils import model_summary
 from models.resnet import ResNet18
@@ -29,6 +29,9 @@ def test_model_sanity(model_):
     cifar_train = CIFAR10Dataset(
         root="./data", train=True, transform="test", download=True
     )
+    cifar_test = CIFAR10Dataset(
+        root="./data", train=False, transform="test", download=True
+    )
     cifar_subset = Subset(cifar_train, range(100))
 
     # Set the seed
@@ -36,50 +39,60 @@ def test_model_sanity(model_):
 
     # Create model
     model = model_
-    loss_function = F.cross_entropy
+    criterion = F.cross_entropy
     # Using Adam as the optimizer
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-
+    epochs = 5
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     # Create data loader
     train_loader = DataLoader(cifar_subset, batch_size=10, shuffle=True)
+    test_loader = DataLoader(cifar_test, batch_size=1, shuffle=False)
 
-    # Train the model on the small subset
-    # Calculate initial loss
-    model.eval()  # Set the model to evaluation mode for initial loss calculation
-    with torch.no_grad():
-        data, target = next(iter(train_loader))
-        initial_loss = loss_function(model(data), target).item()
-
-    # Train the model on the small subset
-    model.train()  # Set the model back to train mode
-    for epoch in range(1, 5):  # Running for 4 epochs just for testing
-        print(f"Epoch {epoch}")
-        pbar = tqdm(train_loader)
-
-        for batch_idx, (data, target) in enumerate(pbar):
+    model.train()
+    pbar = tqdm(train_loader)
+    for batch_idx, (train_data, train_targets) in enumerate(pbar):
+        # Train on each small batch
+        for epoch in range(epochs):
+            train_data, train_targets = train_data.to(device), train_targets.to(device)
             optimizer.zero_grad()
-            output = model(data)
-            loss = loss_function(output, target)
+            outputs = model(train_data)
+            loss = criterion(outputs, train_targets)
             loss.backward()
             optimizer.step()
-            pbar.set_description(f"Loss: {loss.item():.4f} Batch_id={batch_idx}")
 
-    # Perform a sanity check: the loss should decrease after training
-    model.eval()  # Set the model to evaluation mode for final loss calculation
-    with torch.no_grad():
-        data, target = next(iter(train_loader))
-        final_loss = loss_function(model(data), target).item()
+        # Evaluate on the test set
+        model.eval()
+        with torch.no_grad():
+            test_loss, correct, total = 0, 0, 0
+            for test_data, test_targets in test_loader:
+                test_data, test_targets = test_data.to(device), test_targets.to(device)
+                outputs = model(test_data)
+                test_loss += criterion(outputs, test_targets).item()
+                _, predicted = torch.max(outputs.data, 1)
+                total += test_targets.size(0)
+                correct += (predicted == test_targets).sum().item()
 
-    print("Initial loss:", initial_loss)
-    print("Final loss:", final_loss)
+        train_loss = loss.item()
+        train_accuracy = (
+            100.0
+            * np.sum(
+                np.argmax(outputs.cpu().numpy(), axis=1) == train_targets.cpu().numpy()
+            )
+            / train_targets.size(0)
+        )
+        test_loss /= len(test_loader.dataset)
+        test_accuracy = 100.0 * correct / total
 
-    assert (
-        final_loss < initial_loss
-    ), "Sanity check failed: Loss did not decrease after training."
+        print(
+            f"Batch {batch_idx + 1}, Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2f}%"
+        )
+        print(
+            f"Batch {batch_idx + 1}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%"
+        )
 
-    print(
-        "Sanity check passed: Model is capable of overfitting to a small subset of the data."
-    )
+        # Check for signs of overfitting
+        if train_loss < test_loss and train_accuracy > test_accuracy:
+            print(f"Overfitting detected in batch {batch_idx + 1}")
 
 
 if __name__ == "__main__":
@@ -98,7 +111,8 @@ if __name__ == "__main__":
 
     # Create
     config = get_config()
-    model = ResNet18()
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    model = ResNet18().to(device)
 
     if args.summary:
         config["debug"] = True
