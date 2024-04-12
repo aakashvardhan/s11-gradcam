@@ -1,14 +1,16 @@
 import math
 from matplotlib import pyplot as plt
 import numpy as np
-def display_gradcam_output(misclass_data,
-                           classes,
-                           model,
-                           inv_normalize,
-                           target_layers: list['model_layer'],
-                           targets=None,
-                           no_samples:int = 10,
-                           transparence:float = 0.60):
+from torchvision import transforms
+
+def display_gradcam_output(
+    misclass_data,
+    classes,
+    model,
+    target_layers,
+    no_samples: int = 10,
+    transparence: float = 0.60,
+):
     """
         Function to visualize GradCam output on the data
     :param data: List[Tuple(image, label)]
@@ -20,7 +22,13 @@ def display_gradcam_output(misclass_data,
     :param number_of_samples: Number of images to print
     :param transparency: Weight of Normal image when mixed with activations
     """
+    from pytorch_grad_cam import GradCAM
+    from pytorch_grad_cam.utils.image import show_cam_on_image
 
+    # Denormalize the data using test mean and std deviation
+    inv_normalize = transforms.Normalize(
+    mean=[-0.50/0.23, -0.50/0.23, -0.50/0.23],
+    std=[1/0.23, 1/0.23, 1/0.23]) 
     # Plot configuration
     fig = plt.figure(figsize=(10, 10))
     x_count = 5
@@ -30,30 +38,32 @@ def display_gradcam_output(misclass_data,
         y_count = math.floor(no_samples / x_count)
 
     # Create an object for GradCAM
-    cam = GradCAM(model=model, target_layers=target_layers,use_cuda=True)
+    cam = GradCAM(model=model, target_layers=target_layers, use_cuda=True)
 
     # Iterate over number of specified images
     for i in range(no_samples):
-        plt.subplot(y_count,x_count,i+1)
+        plt.subplot(y_count, x_count, i + 1)
         input_tensor = misclass_data[i][0]
 
         # Get the activations of the layer for the images
-        grayscale_cam = cam(input_tensor=input_tensor,targets=targets)
-        grayscale_cam = grayscale_cam[0,:]
-
-
+        grayscale_cam = cam(input_tensor=input_tensor, targets=None)
+        grayscale_cam = grayscale_cam[0, :]
 
         # Get the original image
-        img = input_tensor.squeeze(0).to('cpu')
+        img = input_tensor.squeeze(0).to("cpu")
         img = inv_normalize(img)
         rgb_img = np.transpose(img.cpu().numpy(), [1, 2, 0])
 
         # mix the normal image with the activations
-        visualization = show_cam_on_image(rgb_img, grayscale_cam,use_rgb=True,image_weight=transparence)
+        visualization = show_cam_on_image(
+            rgb_img, grayscale_cam, use_rgb=True, image_weight=transparence
+        )
 
         # Plot the GradCAM output along with the original image
         plt.imshow(visualization)
-        plt.title("Pred: {} Act: {}".format(classes[misclass_data[i][2].item()],classes[misclass_data[i][1].item()]))
+        plt.title(
+            f"Pred: {classes[misclass_data[i][2].item()]} Act: {classes[misclass_data[i][1].item()]}"
+        )
         plt.xticks([])
         plt.yticks([])
     plt.tight_layout()
