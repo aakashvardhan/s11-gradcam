@@ -51,7 +51,7 @@ def plt_misclassified_images(
     """
 
     # Determine the number of images to plot (max 10)
-    n_images = 10
+    n_images = max_images
     classes = config["classes"]
     fig = plt.figure(figsize=(20, 4))
     for i in range(n_images):
