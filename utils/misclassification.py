@@ -18,7 +18,7 @@ def show_misclassified_images(model, test_loader, config):
       misclass_preds (list): A list of misclassified predictions.
     """
     model.eval()
-    misclass_imgs, misclass_targets, misclass_preds = [], [], []
+    misclass_data = []
     with torch.no_grad():
         for images, labels in test_loader:
           images, labels = images.to(config["device"]), labels.to(config["device"])
@@ -29,18 +29,15 @@ def show_misclassified_images(model, test_loader, config):
               pred = outputs.argmax(
                 dim=1, keepdim=True
               )  # get the index of the max log probability
-              misclassified_mask = ~(pred == label.view_as(pred)).cpu().numpy()
-              # squeeze
-              # misclassified_mask = misclassified_mask.squeeze()
-              misclass_imgs.extend(image[misclassified_mask])
-              misclass_targets.extend(label.view_as(pred)[misclassified_mask])
-              misclass_preds.extend(pred[misclassified_mask])
+              
+              if pred.item() != label.item():
+                  misclass_data.append((image, label, pred))
 
-    return misclass_imgs, misclass_targets, misclass_preds
+    return misclass_data
 
 
 def plt_misclassified_images(
-    config, misclass_imgs, misclass_targets, misclass_preds, max_images=10
+    config, misclass_data, max_images=10
 ):
     """
     Plot misclassified images along with their predicted and actual labels.
@@ -54,10 +51,11 @@ def plt_misclassified_images(
     """
 
     # Determine the number of images to plot (max 10)
-    n_images = min(len(misclass_imgs), max_images)
+    n_images = 10
     classes = config["classes"]
     fig = plt.figure(figsize=(20, 4))
     for i in range(n_images):
+        _, misclass_imgs, misclass_targets, misclass_preds = misclass_data[i-1]
         ax = fig.add_subplot(2, 5, i + 1, xticks=[], yticks=[])
         im = misclass_imgs[i].cpu().numpy().transpose((1, 2, 0))
         label = misclass_targets[i].cpu().numpy().item()
