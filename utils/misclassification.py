@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from torchvision import transforms
 
 
 def show_misclassified_images(model, test_loader, config):
@@ -21,24 +22,22 @@ def show_misclassified_images(model, test_loader, config):
     misclass_data = []
     with torch.no_grad():
         for images, labels in test_loader:
-          images, labels = images.to(config["device"]), labels.to(config["device"])
-          
-          for image, label in zip(images, labels):
-              image = image.unsqueeze(0)
-              outputs = model(image)
-              pred = outputs.argmax(
-                dim=1, keepdim=True
-              )  # get the index of the max log probability
-              
-              if pred.item() != label.item():
-                  misclass_data.append((image, label, pred))
+            images, labels = images.to(config["device"]), labels.to(config["device"])
+
+            for image, label in zip(images, labels):
+                image = image.unsqueeze(0)
+                outputs = model(image)
+                pred = outputs.argmax(
+                    dim=1, keepdim=True
+                )  # get the index of the max log probability
+
+                if pred.item() != label.item():
+                    misclass_data.append((image, label, pred))
 
     return misclass_data
 
 
-def plt_misclassified_images(
-    config, misclass_data, max_images=10
-):
+def plt_misclassified_images(config, misclass_data, max_images=10):
     """
     Plot misclassified images along with their predicted and actual labels.
 
@@ -50,19 +49,26 @@ def plt_misclassified_images(
       max_images (int, optional): The maximum number of images to plot. Defaults to 10.
     """
 
+    def normalize(image):
+        normalize = transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        )
+        image = normalize(image)
+        image = image.permute(1, 2, 0)
+        return image
+
     # Determine the number of images to plot (max 10)
     n_images = max_images
     classes = config["classes"]
     fig = plt.figure(figsize=(20, 4))
     for i in range(n_images):
-        misclass_imgs, misclass_targets, misclass_preds = misclass_data[i-1]
+        misclass_imgs, misclass_targets, misclass_preds = misclass_data[i - 1]
         ax = fig.add_subplot(2, 5, i + 1, xticks=[], yticks=[])
-        im = misclass_imgs[i].cpu().numpy().transpose((1, 2, 0))
-        label = misclass_targets[i].cpu().numpy().item()
-        pred = misclass_preds[i].cpu().numpy().item()
+        # Normalize the image
+        im_ = normalize(misclass_imgs)
+        pred = misclass_preds.item()
+        label = misclass_targets.item()
 
-        # Normalize
-        im_ = (im - np.min(im)) / (np.max(im) - np.min(im))
         ax.imshow(im_)
         ax.set_title(f"Prediction: {classes[pred]}\nActual: {classes[label]}")
         ax.axis("off")
