@@ -12,23 +12,26 @@ def display_gradcam_output(
     transparence: float = 0.60,
 ):
     """
-        Function to visualize GradCam output on the data
-    :param data: List[Tuple(image, label)]
-    :param classes: Name of classes in the dataset
-    :param inv_normalize: Mean and Standard deviation values of the dataset
-    :param model: Model architecture
-    :param target_layers: Layers on which GradCam should be executed
-    :param targets: Classes to be focused on for GradCam
-    :param number_of_samples: Number of images to print
-    :param transparency: Weight of Normal image when mixed with activations
+    Display the GradCAM output for a given set of misclassified images.
+
+    Args:
+        misclass_data (list): List of misclassified images and their corresponding labels.
+        classes (list): List of class labels.
+        model (torch.nn.Module): The model for which GradCAM needs to be visualized.
+        target_layers (str or list): The target layer(s) for GradCAM.
+        no_samples (int, optional): Number of samples to display. Defaults to 10.
+        transparence (float, optional): Transparency level for the GradCAM overlay. Defaults to 0.60.
     """
+
     from pytorch_grad_cam import GradCAM
     from pytorch_grad_cam.utils.image import show_cam_on_image
 
     # Denormalize the data using test mean and std deviation
     inv_normalize = transforms.Normalize(
-    mean=[-0.50/0.23, -0.50/0.23, -0.50/0.23],
-    std=[1/0.23, 1/0.23, 1/0.23]) 
+        mean=[-0.50/0.23, -0.50/0.23, -0.50/0.23],
+        std=[1/0.23, 1/0.23, 1/0.23]
+    ) 
+
     # Plot configuration
     fig = plt.figure(figsize=(10, 10))
     x_count = 5
@@ -54,7 +57,7 @@ def display_gradcam_output(
         img = inv_normalize(img)
         rgb_img = np.transpose(img.cpu().numpy(), [1, 2, 0])
 
-        # mix the normal image with the activations
+        # Mix the normal image with the activations
         visualization = show_cam_on_image(
             rgb_img, grayscale_cam, use_rgb=True, image_weight=transparence
         )
@@ -67,5 +70,6 @@ def display_gradcam_output(
         plt.axis("off")
         plt.xticks([])
         plt.yticks([])
+
     plt.tight_layout()
     plt.show()
