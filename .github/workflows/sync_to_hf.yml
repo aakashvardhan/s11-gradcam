@@ -1,10 +1,9 @@
 name: Sync to Hugging Face hub
-on:
+on: 
   push:
     branches: [main]
-  # to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
+  workflow_dispatch:  
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
@@ -13,7 +12,11 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-      - name: Push to hub
+      - name: Force Push to Hugging Face Space
+        run: |
+          git config --global user.email "vardhan.aakash1@gmail.com"
+          git config --global user.name "aakashv100"
+          git remote add huggingface https://huggingface.co/spaces/aakashv100/gradcam_demo
+          git push --force huggingface main:main
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://aakashv100:$HF_TOKEN@huggingface.co/spaces/aakashv100/gradcam_demo
