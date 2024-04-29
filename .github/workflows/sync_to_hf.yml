@@ -1,22 +1,19 @@
-name: Sync to Hugging Face hub
-on: 
-  push:
-    branches: [main]
+name: Sync with Hugging Face Hub
 
-  workflow_dispatch:  
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  sync-to-hub:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          lfs: true
-      - name: Force Push to Hugging Face Space
-        run: |
-          git config --global user.email "vardhan.aakash1@gmail.com"
-          git config --global user.name "aakashv100"
-          git remote add huggingface https://huggingface.co/spaces/aakashv100/gradcam_demo
-          git push --force huggingface main:main
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    - name: Sync with Hugging Face
+      uses: nateraw/huggingface-sync-action@v0.0.4
+      with:
+        github_repo_id: aakashvardhan/s11_gradcam
+        huggingface_repo_id: aakashv100/gradcam_demo
+        repo_type: space
+        space_sdk: gradio
+        hf_token: ${{ secrets.HF_TOKEN }}
