@@ -1,0 +1,26 @@
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync-to-space:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: "aakashv100"
+          HF_SPACE: "gradcam_demo"
+        run: |
+          git config --global user.email "vardhan.aakash1@gmail.com"
+          git config --global user.name "aakashvardhan"
+          git remote add space https://huggingface.co/spaces/${{ env.HF_USERNAME }}/${{ env.HF_SPACE }}
+          git push --force space main
