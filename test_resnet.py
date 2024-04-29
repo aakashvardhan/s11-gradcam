@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 import numpy as np
-from config import get_config
+from lit_config import get_config
 from models.model_utils import model_summary
 from models.resnet import ResNet18
 from utils.transform import CIFAR10Dataset
